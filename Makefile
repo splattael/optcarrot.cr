@@ -3,6 +3,9 @@ PREFIX ?= $(CURDIR)
 
 all: spec
 
+build:
+	$(CRYSTAL_BIN) build --release bin/optcarrot
+
 spec:
 	$(CRYSTAL_BIN) spec
 

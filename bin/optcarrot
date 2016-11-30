@@ -1,0 +1,3 @@
+require "../src/optcarrot"
+
+Optcarrot::NES.new.run
