@@ -4,7 +4,6 @@ version: 0.1.0
 authors:
   - Peter Suschlik <ps@neopoly.de>
 
-
-crystal: 0.19.4
+crystal: 0.20.0
 
 license: MIT

@@ -1,32 +1,18 @@
-# foo
+# optcarrot.cr
 
-TODO: Write a description here
-
-## Installation
-
-
-Add this to your application's `shard.yml`:
-
-```yaml
-dependencies:
-  foo:
-    github: splattael/foo
-```
-
-
-## Usage
-
-
-```crystal
-require "foo"
-```
-
-
-TODO: Write usage instructions here
+Port [mame's optcarrot](https://github.com/mame/optcarrot) in Crystal.
 
 ## Development
 
-TODO: Write development instructions here
+```
+make
+```
+
+"If it compiles, ship it!"
+
+## TODO
+
+`git grep TODO`
 
 ## Contributing
 
