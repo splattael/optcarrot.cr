@@ -6,7 +6,7 @@ end
 require "./optcarrot/nes"
 require "./optcarrot/rom"
 require "./optcarrot/pad"
-#require_relative "optcarrot/cpu"
+require "./optcarrot/cpu"
 #require_relative "optcarrot/apu"
 #require_relative "optcarrot/ppu"
 #require_relative "optcarrot/palette"
