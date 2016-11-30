@@ -71,9 +71,16 @@ module Optcarrot
     end
     getter :romfile
 
+    @__options : Hash(Symbol, (Array(String) | Int32 | String | Symbol | Bool | Nil | Array(Symbol)))
+
     def initialize(opt)
       opt = Parser.new(opt).options if opt.is_a?(Array)
       # TODO DEFAULT_OPTIONS.merge(opt).each {|id, val| instance_variable_set(:"@#{ id }", val) }
+      @__options = DEFAULT_OPTIONS.merge(opt)
+    end
+
+    macro method_missing(id)
+      @__options[id]
     end
 
     def debug(msg)

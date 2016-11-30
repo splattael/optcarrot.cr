@@ -26,14 +26,18 @@ module Optcarrot
     ###########################################################################
     # initialization
 
-    def initialize(conf)
+    @fetch : Array(Nil)
+    @store : Array(Nil)
+    @ram : Array(Int32)
+
+    def initialize(conf : Config)
       @conf = conf
 
       # load the generated core
       if @conf.load_cpu
         eval(File.read(@conf.load_cpu))
       elsif @conf.opt_cpu
-        eval(OptimizedCodeBuilder.new(@conf.loglevel, @conf.opt_cpu).build, nil, "(generated CPU core)")
+        # TODO eval(OptimizedCodeBuilder.new(@conf.loglevel, @conf.opt_cpu).build, nil, "(generated CPU core)")
       end
 
       # main memory

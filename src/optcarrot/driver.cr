@@ -28,7 +28,7 @@ module Optcarrot
 
     extend self
 
-    def load(conf)
+    def load(conf) : {Video, Audio, Input}
       video = load_each(conf, :video, conf.video).new(conf)
       audio = load_each(conf, :audio, conf.audio).new(conf)
       input = load_each(conf, :input, conf.input).new(conf, video)
