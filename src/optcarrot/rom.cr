@@ -1,16 +1,12 @@
+require "zlib"
+
 module Optcarrot
   # Cartridge class (with NROM mapper implemented)
   class ROM
+
     MAPPER_DB = { 0x00 => self }
 
-    # These are optional
-    require_relative "mapper/mmc1"
-    require_relative "mapper/uxrom"
-    require_relative "mapper/cnrom"
-    require_relative "mapper/mmc3"
-
     def self.zip_extract(filename)
-      require "zlib"
       bin = File.binread(filename)
       loop do
         sig, _, flags, comp, _, _, _, data_len, _, fn_len, ext_len = bin.slice!(0, 30).unpack("a4v5V3v2")
@@ -46,7 +42,7 @@ module Optcarrot
       klass.new(conf, cpu, ppu, basename, blob)
     end
 
-    class InvalidROM < StandardError
+    class InvalidROM < Exception
     end
 
     def parse_header(buf)
@@ -90,7 +86,7 @@ module Optcarrot
 
       @wrk_readable = wrk_count > 0
       @wrk_writable = false
-      @wrk = wrk_count > 0 ? (0x6000..0x7fff).map {|addr| addr >> 8 } : nil
+      # TODO @wrk = wrk_count > 0 ? (0x6000..0x7fff).map {|addr| addr >> 8 } : nil
 
       init
 
@@ -141,3 +137,9 @@ module Optcarrot
     end
   end
 end
+
+# These are optional
+require "./mapper/mmc1"
+require "./mapper/uxrom"
+require "./mapper/cnrom"
+require "./mapper/mmc3"

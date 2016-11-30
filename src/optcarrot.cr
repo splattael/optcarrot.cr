@@ -4,7 +4,7 @@ module Optcarrot
 end
 
 require "./optcarrot/nes"
-#require "./optcarrot/rom"
+require "./optcarrot/rom"
 #require_relative "optcarrot/pad"
 #require_relative "optcarrot/cpu"
 #require_relative "optcarrot/apu"
