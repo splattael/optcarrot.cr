@@ -61,7 +61,7 @@ module Optcarrot
       },
     }
 
-    DEFAULT_OPTIONS = {} of Symbol => (Array(String) | Int32 | String | Symbol)
+    DEFAULT_OPTIONS = {} of Symbol => (Array(String) | Int32 | String | Symbol | Bool | Nil | Array(Symbol))
     OPTIONS.each do |_kind, opts|
       opts.each do |id, opt|
         next if opt[:shortcut]?
@@ -73,7 +73,7 @@ module Optcarrot
 
     def initialize(opt)
       opt = Parser.new(opt).options if opt.is_a?(Array)
-      DEFAULT_OPTIONS.merge(opt).each {|id, val| instance_variable_set(:"@#{ id }", val) }
+      # TODO DEFAULT_OPTIONS.merge(opt).each {|id, val| instance_variable_set(:"@#{ id }", val) }
     end
 
     def debug(msg)
@@ -99,6 +99,9 @@ module Optcarrot
 
     # command-line option parser
     class Parser
+      @argv : Array(String)
+      @options : Hash(Symbol, String | Int32 | String | Symbol | Array(String) | Bool | Nil | Array(Symbol))
+
       def initialize(argv)
         @argv = argv
         @options = DEFAULT_OPTIONS.dup
@@ -116,48 +119,48 @@ module Optcarrot
       class Invalid < Exception; end
 
       def error(msg)
-        raise Invalid, msg
+        raise Invalid.new msg
       end
 
       def find_option(arg)
         OPTIONS.each do |_kind, opts|
           opts.each do |id_base, opt|
-            ([id_base] + opt[:aliases]).each do |id|
+            ([id_base] + opt[:aliases].as(Array(String))).each do |id|
               id = id.to_s.tr("_", "-")
-              return opt, id_base if id.size == 1 && arg == "-#{ id }"
-              return opt, id_base if arg == "--#{ id }"
+              return opt, id_base, false if id.size == 1 && arg == "-#{ id }"
+              return opt, id_base, false if arg == "--#{ id }"
               return opt, id_base, true if opt[:type] == :switch && arg == "--no-#{ id }"
             end
           end
         end
-        return nil
+        return nil, nil, nil
       end
 
       def parse_option
         arg, operand = @argv.shift.split("=", 2)
         if arg =~ /\A-(\w{2,})\z/
           args = $1.chars.map {|a| "-#{ a }" }
-          args.last << "=" << operand if operand
-          @argv.unshift(*args)
+          args[-1] += "=" + operand if operand
+          @argv = args + @argv
           return
         end
         opt, id, no = find_option(arg)
         if opt
           if opt[:shortcut]?
-            @argv.unshift(*opt[:shortcut])
+            @argv = [opt[:shortcut].to_s] + @argv
             return
           elsif opt[:type] == :info
-            send(id)
+            # TODO send(id)
             exit
           elsif opt[:type] == :switch
             error "option `#{ arg }' doesn't allow an operand" if operand
-            @options[id] = !no
+            @options[id.not_nil!] = !no
           else
-            @options[id] = parse_operand(operand, arg, opt)
+            @options[id.not_nil!] = parse_operand(operand, arg, opt)
           end
         else
           arg = @argv.shift if arg == "--"
-          error "invalid option: `#{ arg }'" if arg && arg.start_with?("-")
+          error "invalid option: `#{ arg }'" if arg && arg.starts_with?("-")
           if arg
             error "extra argument: `#{ arg }'" if @options[:romfile]
             @options[:romfile] = arg
@@ -170,10 +173,10 @@ module Optcarrot
         operand ||= @argv.shift
         case type
         when :opts
-          operand = operand.split(",").map {|s| s.to_sym }
+          operand = operand.to_s.split(",").map {|s| :"#{s}" }
         when :driver
-          operand = operand.to_sym
-          error "unknown driver: `#{ operand }'" unless opt[:candidates].include?(operand)
+          operand = :"#{operand}"
+          # TODO error "unknown driver: `#{ operand }'" unless opt[:candidates].includes?(operand)
         when :int
           begin
             operand = operand.to_i32
